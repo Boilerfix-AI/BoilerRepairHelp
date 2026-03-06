@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Awaab's Law — BoilerFix AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&family=Syne:wght@700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:#0b1829;color:#eef2f7;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── VARIABLES ── */
+:root{
+  --navy:#0b1829;--n2:#112236;--n3:#183050;
+  --orange:#f07a22;--ora-hi:#ff8f35;--ora-lo:#be5e15;
+  --chalk:#eef2f7;--mist:#a8b8cc;--fog:#6a829a;
+  --red:#e84646;--red-g:rgba(232,70,70,0.12);
+  --amber:#e09c28;--amb-g:rgba(224,156,40,0.12);
+  --green:#22c55e;--grn-g:rgba(34,197,94,0.1);
+  --blue:#5b9bd5;--blu-g:rgba(91,155,213,0.1);
+  --border:rgba(255,255,255,0.07);--bord-o:rgba(240,122,34,0.2);
+  --r:14px;--rsm:9px;
+  --shadow:0 4px 24px rgba(0,0,0,0.35);--shsm:0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* ── HEADER ── */
+.hdr{background:var(--n2);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;box-shadow:var(--shsm)}
+.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--chalk)}
+.logo em{color:var(--orange);font-style:normal}
+.hpill{background:linear-gradient(135deg,var(--ora-lo),var(--orange));color:#fff;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;padding:4px 11px;border-radius:20px}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(160deg,var(--n3) 0%,var(--navy) 70%);padding:18px 16px 0;border-bottom:1px solid var(--border)}
+.hero-ey{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.hero h1{font-family:'DM Serif Display',serif;font-size:24px;line-height:1.15;color:var(--chalk);margin-bottom:5px}
+.hero h1 span{color:var(--orange)}
+.hero-sub{font-size:12px;color:var(--mist);line-height:1.5;margin-bottom:14px}
+.pstrip{display:flex;border-top:1px solid var(--border);margin:0}
+.pchip{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-right:1px solid var(--border);font-size:9.5px;text-align:center;gap:2px}
+.pchip:last-child{border-right:none}
+.pchip .pl{font-weight:600}
+.pchip .pd{color:var(--fog);font-size:9px}
+.pchip.live .pl{color:var(--green)}
+.pchip.next .pl{color:var(--amber)}
+.pchip.later .pl{color:var(--fog)}
+
+/* ── APP BODY: sidebar + content ── */
+.app-body{display:flex;align-items:stretch;min-height:calc(100vh - 52px)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:64px;flex-shrink:0;background:var(--n2);border-right:1px solid var(--border);position:sticky;top:52px;height:calc(100vh - 52px);display:flex;flex-direction:column;align-items:stretch;padding:8px 0;z-index:50;overflow:visible}
+.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:11px 4px;background:none;border:none;border-left:3px solid transparent;color:var(--fog);font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all 0.18s;text-align:center;line-height:1.2;width:100%}
+.nb .ni{font-size:19px;line-height:1;display:block}
+.nb:hover{color:var(--chalk);background:rgba(255,255,255,0.05)}
+.nb.on{color:var(--orange);background:rgba(240,122,34,0.08);border-left-color:var(--orange)}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;min-width:0;padding:14px 14px 60px;overflow-x:hidden}
+.tab{display:none}.tab.on{display:block}
+
+/* ── SECTION HEADING ── */
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.sh-line{flex:1;height:1px;background:linear-gradient(90deg,var(--bord-o),transparent)}
+.sh-txt{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);white-space:nowrap}
+
+/* ── CARDS ── */
+.card{background:var(--n2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:11px;box-shadow:var(--shsm)}
+.ch{display:flex;align-items:center;gap:9px;padding:11px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--border)}
+.chi{width:28px;height:28px;border-radius:7px;background:rgba(240,122,34,0.12);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ch h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--chalk)}
+.ch-sub{font-size:10.5px;color:var(--fog);margin-top:1px}
+.cb{padding:14px}
+.cb.t{padding:10px 14px}
+
+/* ── NOTICE ── */
+.notice{display:flex;gap:9px;padding:10px 12px;border-radius:var(--rsm);margin-bottom:11px;font-size:11.5px;line-height:1.5}
+.notice.bl{background:var(--blu-g);border:1px solid rgba(91,155,213,0.22);color:#93c4ef}
+.notice.am{background:var(--amb-g);border:1px solid rgba(224,156,40,0.25);color:#f5c84a}
+.notice.re{background:var(--red-g);border:1px solid rgba(232,70,70,0.25);color:#f59898}
+.ni2{font-size:13px;flex-shrink:0;margin-top:1px}
+
+/* ── FIELDS ── */
+.flds{display:flex;flex-direction:column;gap:10px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--fog)}
+.req{color:var(--orange);margin-left:2px}
+.inp,.sel,.ta{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:var(--rsm);color:var(--chalk);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;width:100%;outline:none;transition:border-color 0.18s,background 0.18s;-webkit-appearance:none;appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:rgba(240,122,34,0.5);background:rgba(240,122,34,0.04)}
+.inp::placeholder{color:rgba(168,184,204,0.35)}
+.ta{resize:vertical;min-height:78px}
+.sel option{background:var(--n2)}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=datetime-local]::-webkit-calendar-picker-indicator{filter:invert(0.6)}
+
+/* ── READINGS ── */
+.rdg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.rd{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 6px 8px;text-align:center}
+.rd:focus-within{border-color:rgba(240,122,34,0.4)}
+.rd .rl{display:block;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--fog);margin-bottom:5px}
+.rd input{background:none;border:none;border-bottom:1px solid rgba(255,255,255,0.12);color:var(--orange);font-family:'Syne',sans-serif;font-size:20px;font-weight:700;width:100%;text-align:center;outline:none;padding:2px 0}
+.rd .ru{display:block;font-size:9px;color:var(--fog);margin-top:3px}
+
+/* ── CHOICES ── */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.cho{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--rsm);padding:11px 8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--mist);cursor:pointer;transition:all 0.18s;text-align:center;line-height:1.3;display:flex;flex-direction:column;align-items:center;gap:4px}
+.cho .ci{font-size:18px}
+.cho:hover{border-color:rgba(240,122,34,0.4);color:var(--chalk);background:rgba(240,122,34,0.05)}
+.cho.on{border-color:var(--orange);background:rgba(240,122,34,0.1);color:var(--chalk)}
+
+/* ── VULN ── */
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.vi{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 10px;cursor:pointer;font-size:11.5px;color:var(--mist);user-select:none;transition:all 0.18s}
+.vi input{display:none}
+.vi .vii{font-size:15px;flex-shrink:0}
+.vi.on{border-color:rgba(232,70,70,0.45);background:rgba(232,70,70,0.07);color:#f48a8a}
+
+/* ── RESULT ── */
+.res{border-radius:var(--rsm);padding:13px;display:none;margin-top:9px}
+.res.show{display:block}
+.res.em{background:rgba(232,70,70,0.09);border:1px solid rgba(232,70,70,0.35)}
+.res.sig{background:rgba(224,156,40,0.09);border:1px solid rgba(224,156,40,0.35)}
+.res.low{background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.3)}
+.res-k{font-size:9.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px}
+.em .res-k{color:var(--red)}.sig .res-k{color:var(--amber)}.low .res-k{color:var(--green)}
+.res-t{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:5px}
+.em .res-t{color:#f07070}.sig .res-t{color:#f0c060}.low .res-t{color:#5ee68a}
+.res-b{font-size:12px;color:var(--mist);line-height:1.5}
+.res-d{margin-top:9px;padding:8px 11px;background:rgba(255,255,255,0.05);border-radius:6px;font-size:11.5px;font-weight:600}
+.em .res-d{color:#f48080}.sig .res-d{color:#f0c870}
+
+/* ── PHOTO ── */
+.pz{border:2px dashed rgba(240,122,34,0.25);border-radius:var(--rsm);padding:18px;text-align:center;cursor:pointer;transition:all 0.2s}
+.pz:hover{border-color:var(--orange);background:rgba(240,122,34,0.04)}
+.pzi{font-size:24px;margin-bottom:5px;opacity:0.7}
+.pzt{font-size:12px;color:var(--fog)}
+.pzt strong{color:var(--orange)}
+.pgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.pt{width:64px;height:64px;border-radius:7px;overflow:hidden;position:relative;border:1px solid var(--border);background:var(--n3)}
+.pt img{width:100%;height:100%;object-fit:cover}
+.pt .pd2{position:absolute;top:2px;right:2px;width:17px;height:17px;background:rgba(0,0,0,0.75);border:none;color:#fff;font-size:10px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── DEADLINE ROWS ── */
+.dlc{background:var(--n2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:11px}
+.dlr{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.dlr:last-child{border-bottom:none}
+.dlb{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.dlb.r{background:var(--red-g)}.dlb.a{background:var(--amb-g)}.dlb.b{background:var(--blu-g)}.dlb.g{background:var(--grn-g)}
+.dli{flex:1}.dlt{font-size:12.5px;font-weight:600;color:var(--chalk);margin-bottom:1px}.dls{font-size:10.5px;color:var(--fog)}
+.dltime{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--orange);white-space:nowrap}
+.cdb{background:rgba(240,122,34,0.05);border:1px solid rgba(240,122,34,0.15);border-radius:var(--rsm);padding:12px;margin-top:3px}
+.cdt{font-size:9.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
+.cdrs{display:flex;flex-direction:column;gap:5px}
+.cdr{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px;font-size:11.5px}
+.cdr .cl{color:var(--mist)}.cdr .cv{font-weight:600;font-family:'Syne',sans-serif;font-size:12px}
+.cv.ok{color:var(--green)}.cv.warn{color:var(--amber)}.cv.od{color:var(--red)}
+
+/* ── PHASE BLOCKS ── */
+.pb{background:var(--n2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.pbh{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.pbn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;flex-shrink:0}
+.pbn.live{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.pbn.next{background:rgba(224,156,40,0.12);color:var(--amber);border:1px solid rgba(224,156,40,0.25)}
+.pbn.fut{background:rgba(168,184,204,0.08);color:var(--fog);border:1px solid rgba(168,184,204,0.15)}
+.pbm{flex:1}
+.pbd{font-size:9.5px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:2px}
+.pbn.live+.pbm .pbd{color:var(--green)}.pbn.next+.pbm .pbd{color:var(--amber)}.pbn.fut+.pbm .pbd{color:var(--fog)}
+.pbtl{font-size:13px;font-weight:600;color:var(--chalk)}
+.pbb{padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.pbi{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--mist);line-height:1.4}
+.pbi::before{content:'—';color:var(--orange);flex-shrink:0;font-weight:700}
+
+/* ── SCOPE LIST ── */
+.scl{display:flex;flex-direction:column;gap:4px}
+.sci{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mist);padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:6px;border:1px solid var(--border)}
+.sci .sii{font-size:13px;flex-shrink:0;width:18px;text-align:center}
+.sci.in{border-color:rgba(34,197,94,0.2)}.sci.out{border-color:rgba(232,70,70,0.15);opacity:0.65}.sci.tbc{border-color:rgba(224,156,40,0.2)}
+
+/* ── BUTTONS ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all 0.18s;padding:12px 16px;font-size:13.5px;width:100%}
+.btn-p{background:linear-gradient(135deg,var(--orange),var(--ora-hi));color:#fff;box-shadow:0 3px 12px rgba(240,122,34,0.3)}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(240,122,34,0.4)}
+.btn-g{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--mist)}
+.btn-g:hover{border-color:rgba(255,255,255,0.18);color:var(--chalk);background:rgba(255,255,255,0.07)}
+.btn-d{background:linear-gradient(135deg,#1a3a5c,#1f4a78);color:#fff;box-shadow:0 3px 12px rgba(0,0,0,0.25)}
+.btn-d:hover{transform:translateY(-1px)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── REPORT DOC ── */
+.rpt-wrap{display:none;margin-top:14px}.rpt-wrap.show{display:block}
+.rdoc{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);color:#1a2a40}
+.rdh{background:#0b1829;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.rdl{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff}
+.rdl em{color:#f07a22;font-style:normal}
+.rdb{background:#f07a22;color:#fff;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.rdt{background:#f5f7fb;border-bottom:2px solid #e0e7f0;padding:12px 18px}
+.rdt h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0b1829;margin-bottom:2px}
+.rdr{font-size:10px;color:#6a7d95}
+.rdbody{padding:14px 18px}
+.rsec{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#f07a22;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid #e8edf5}
+.rsec:first-child{margin-top:0}
+.rrow{display:flex;gap:8px;padding:4px 0;font-size:11.5px;border-bottom:1px solid #f0f4f9}
+.rrow:last-child{border-bottom:none}
+.rk{color:#6a7d95;min-width:130px;flex-shrink:0;font-weight:500}
+.rv{color:#1a2a40;font-weight:500}
+.rv.em{color:#c0392b;font-weight:700}.rv.sig{color:#b7770d;font-weight:700}
+.rft{background:#f5f7fb;border-top:1px solid #e0e7f0;padding:9px 18px;display:flex;justify-content:space-between;font-size:10px;color:#8a9bb0}
+.rft strong{color:#3a5070}
+
+/* ── LETTERS ── */
+.ltabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.ltabs::-webkit-scrollbar{display:none}
+.ltb{flex-shrink:0;padding:8px 12px;background:none;border:none;border-bottom:2px solid transparent;color:var(--fog);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.ltb.on{color:var(--orange);border-bottom-color:var(--orange)}
+.lp{display:none}.lp.on{display:block}
+.ldoc{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);color:#1a2a40;margin-bottom:10px}
+.lh2{background:#0b1829;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.ll2{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff}
+.ll2 em{color:#f07a22;font-style:normal}
+.lbdg{background:#f07a22;color:#fff;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.lm{padding:9px 16px;background:#f5f7fb;border-bottom:1px solid #e0e7f0;font-size:10.5px;color:#6a7d95}
+.lm strong{color:#1a2a40;display:block;margin-bottom:1px;font-size:11.5px}
+.le{width:100%;min-height:320px;background:#fff;border:1px solid #e0e7f0;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;line-height:1.7;color:#1a2a40;padding:13px;outline:none;resize:vertical;margin-top:2px}
+.le:focus{border-color:#f07a22}
+.lbwrap{padding:13px 16px}
+.lft{background:#f5f7fb;border-top:1px solid #e0e7f0;padding:9px 16px;display:flex;justify-content:space-between;font-size:10px;color:#8a9bb0}
+.lft strong{color:#3a5070}
+.lact{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+
+/* ── EMAIL MODAL ── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;align-items:center;justify-content:center;padding:18px}
+.modal.show{display:flex}
+.modal-inner{background:var(--n2);border:1px solid var(--border);border-radius:var(--r);padding:18px;width:100%;max-width:400px;box-shadow:var(--shadow)}
+.modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:13px;color:var(--chalk)}
+.modal-flds{display:flex;flex-direction:column;gap:9px;margin-bottom:13px}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--n3);border:1px solid rgba(34,197,94,0.4);color:var(--green);font-size:12.5px;font-weight:600;padding:9px 18px;border-radius:30px;opacity:0;pointer-events:none;transition:all 0.3s;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── TIMESTAMP ── */
+.tstag{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#5ee690;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="logo">BoilerFix <em>AI</em></div>
+  <div class="hpill">Awaab's Law</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-ey"><div class="ldot"></div> In Force Since 27 October 2025</div>
+  <h1>Awaab's Law <span>Compliance</span></h1>
+  <p class="hero-sub">Classify hazards, generate inspection reports, compliance letters and track legal deadlines — on site.</p>
+  <div class="pstrip">
+    <div class="pchip live"><span class="pl">✓ Phase 1 Live</span><span class="pd">Oct 2025 — Damp & Emergencies</span></div>
+    <div class="pchip next"><span class="pl">Phase 2</span><span class="pd">2026 — Heating, Fire, Electrical</span></div>
+    <div class="pchip later"><span class="pl">Phase 3</span><span class="pd">2027 — All HHSRS</span></div>
+  </div>
+</div>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <button class="nb on" onclick="goTab('classify',this)"><span class="ni">⚡</span>Classify</button>
+    <button class="nb" onclick="goTab('inspect',this)"><span class="ni">📋</span>Inspect</button>
+    <button class="nb" onclick="goTab('deadlines',this)"><span class="ni">⏱</span>Deadlines</button>
+    <button class="nb" onclick="goTab('letters',this)"><span class="ni">✉️</span>Letters</button>
+    <button class="nb" onclick="goTab('reference',this)"><span class="ni">📖</span>Reference</button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+  <div id="toast" class="toast">✓ Done</div>
+
+  <!-- ══ CLASSIFY ══ -->
+  <div id="tab-classify" class="tab on">
+    <div class="sh"><span class="sh-txt">Hazard Classifier</span><div class="sh-line"></div></div>
+    <div class="notice bl"><span class="ni2">ℹ</span>Emergency = act within 24 hours. Significant = investigate within 10 working days.</div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">❓</div><div><h3>Step 1 — Hazard Type</h3><div class="ch-sub">What have you found?</div></div></div>
+      <div class="cb">
+        <div class="cg">
+          <button class="cho" onclick="pickH(this,'boiler')"><span class="ci">🔥</span>No heating — boiler failure</button>
+          <button class="cho" onclick="pickH(this,'gas')"><span class="ci">⚠️</span>Gas leak / smell of gas</button>
+          <button class="cho" onclick="pickH(this,'damp')"><span class="ci">💧</span>Damp and mould</button>
+          <button class="cho" onclick="pickH(this,'co')"><span class="ci">☠️</span>CO alarm / suspected CO</button>
+          <button class="cho" onclick="pickH(this,'hw')"><span class="ci">🚿</span>No hot water only</button>
+          <button class="cho" onclick="pickH(this,'other')"><span class="ci">🏠</span>Other hazard</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="step2" style="display:none">
+      <div class="ch"><div class="chi">👥</div><div><h3>Step 2 — Vulnerability</h3><div class="ch-sub">Select all that apply</div></div></div>
+      <div class="cb">
+        <div class="vg" id="clf-v">
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">👶</span>Child under 5</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">👴</span>Elderly (75+)</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">🫁</span>Respiratory</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">♿</span>Disability</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">🤱</span>Pregnant/newborn</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">💊</span>Serious health condition</label>
+        </div>
+        <button class="btn btn-p" style="margin-top:11px" onclick="runClf()">Classify Hazard →</button>
+      </div>
+    </div>
+
+    <div id="clf-res" class="res">
+      <div class="res-k" id="r-k"></div>
+      <div class="res-t" id="r-t"></div>
+      <div class="res-b" id="r-b"></div>
+      <div class="res-d" id="r-d"></div>
+    </div>
+  </div>
+
+  <!-- ══ INSPECT ══ -->
+  <div id="tab-inspect" class="tab">
+    <div class="sh"><span class="sh-txt">Inspection Report</span><div class="sh-line"></div></div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">🏠</div><div><h3>Property Details</h3></div></div>
+      <div class="cb"><div class="flds">
+        <div class="fld"><div class="lbl">Full Address <span class="req">*</span></div><input class="inp" id="p-addr" placeholder="Address including postcode"></div>
+        <div class="fr">
+          <div class="fld"><div class="lbl">Property Type</div><select class="sel" id="p-type"><option>Flat</option><option>Terraced</option><option>Semi-detached</option><option>Detached</option><option>Maisonette</option><option>Bungalow</option></select></div>
+          <div class="fld"><div class="lbl">Build Year</div><input class="inp" id="p-yr" placeholder="e.g. 1974"></div>
+        </div>
+        <div class="fld"><div class="lbl">Social Landlord / Housing Association <span class="req">*</span></div><input class="inp" id="p-ll" placeholder="Name of landlord or council"></div>
+        <div class="fld">
+          <div class="lbl">Date Hazard Reported — Day Zero <span class="req">*</span></div>
+          <input class="inp" type="date" id="p-rep" onchange="syncRep()">
+          <div class="tstag">📅 Today: <span id="today-txt"></span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">⚠️</div><div><h3>Hazard Assessment</h3></div></div>
+      <div class="cb"><div class="flds">
+        <div class="fld"><div class="lbl">Classification <span class="req">*</span></div>
+          <select class="sel" id="h-cls">
+            <option value="">— Select —</option>
+            <option value="emergency">🔴 EMERGENCY — 24 hour response</option>
+            <option value="significant">🟡 SIGNIFICANT — 10 working day investigation</option>
+            <option value="monitor">🟢 Non-significant — monitor and review</option>
+          </select>
+        </div>
+        <div class="fld"><div class="lbl">Hazard Description <span class="req">*</span></div><textarea class="ta" id="h-desc" placeholder="Describe fully — location, extent, root cause, immediate risks, impact on occupants."></textarea></div>
+        <div class="fld"><div class="lbl">Root Cause</div>
+          <select class="sel" id="h-cause">
+            <option value="">— Select —</option>
+            <option>Appliance failure — boiler / heating system</option>
+            <option>Structural defect — building fabric</option>
+            <option>Inadequate or failed ventilation</option>
+            <option>Water ingress — roof, windows or guttering</option>
+            <option>Rising damp — defective or absent DPC</option>
+            <option>Thermal bridging — cold spot condensation</option>
+            <option>Pipework failure or internal leak</option>
+            <option>Condensation — lifestyle factors contributing</option>
+            <option>Multiple factors — see description</option>
+            <option>Under investigation</option>
+          </select>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">🌡️</div><div><h3>Temperature & Readings</h3><div class="ch-sub">HHSRS min: 18°C living / 16°C bedroom</div></div></div>
+      <div class="cb">
+        <div class="rdg">
+          <div class="rd"><span class="rl">Living Room</span><input type="number" step="0.1" placeholder="—" id="rd-lr"><span class="ru">°C</span></div>
+          <div class="rd"><span class="rl">Bedroom</span><input type="number" step="0.1" placeholder="—" id="rd-bd"><span class="ru">°C</span></div>
+          <div class="rd"><span class="rl">Kitchen</span><input type="number" step="0.1" placeholder="—" id="rd-kt"><span class="ru">°C</span></div>
+          <div class="rd"><span class="rl">Humidity</span><input type="number" step="1" placeholder="—" id="rd-rh"><span class="ru">%RH</span></div>
+          <div class="rd"><span class="rl">Damp Meter</span><input type="number" step="1" placeholder="—" id="rd-dm"><span class="ru">%WME</span></div>
+          <div class="rd"><span class="rl">Boiler Pressure</span><input type="number" step="0.1" placeholder="—" id="rd-bp"><span class="ru">bar</span></div>
+        </div>
+        <div class="flds" style="margin-top:10px">
+          <div class="fld"><div class="lbl">Boiler / Heating Status</div>
+            <select class="sel" id="h-bst">
+              <option value="">— Select —</option>
+              <option>Functioning normally</option>
+              <option>Functioning but inefficiently</option>
+              <option>Fault code present — under investigation</option>
+              <option>Total failure — no heating or hot water</option>
+              <option>Total failure — no heating, hot water available</option>
+              <option>Partial heating — some radiators not functioning</option>
+              <option>Condemned and isolated by engineer</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">🛡️</div><div><h3>Vulnerable Occupants</h3><div class="ch-sub">May escalate to emergency classification</div></div></div>
+      <div class="cb">
+        <div class="vg" id="form-v">
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">👶</span>Child under 5</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">👴</span>Elderly (75+)</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">🫁</span>Respiratory</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">♿</span>Disability</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">🤱</span>Pregnant/newborn</label>
+          <label class="vi"><input type="checkbox" onchange="togV(this)"><span class="vii">💊</span>Serious health condition</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">📸</div><div><h3>Photographic Evidence</h3><div class="ch-sub">Photograph mould before treating</div></div></div>
+      <div class="cb">
+        <div class="pz" onclick="document.getElementById('pf').click()">
+          <div class="pzi">📷</div>
+          <div class="pzt"><strong>Tap to add photos</strong><br>Affected areas, readings, appliances</div>
+          <input type="file" id="pf" accept="image/*" multiple style="display:none" onchange="addPx(this)">
+        </div>
+        <div class="pgrid" id="pgrid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">🔧</div><div><h3>Actions & Recommendations</h3></div></div>
+      <div class="cb"><div class="flds">
+        <div class="fld"><div class="lbl">Immediate Actions Taken</div><textarea class="ta" id="a-imm" placeholder="e.g. Boiler reset attempted, fault code E119, parts ordered. Temporary heaters advised."></textarea></div>
+        <div class="fld"><div class="lbl">Further Work Required</div><textarea class="ta" id="a-fur" placeholder="e.g. Return visit to fit PCB. Building surveyor recommended for DPC."></textarea></div>
+        <div class="fld"><div class="lbl">Recommendation to Landlord</div>
+          <select class="sel" id="a-rec">
+            <option value="">— Select —</option>
+            <option>Monitor — no immediate action required</option>
+            <option>Repair — heating system within 5 working days</option>
+            <option>Emergency repair — within 24 hours</option>
+            <option>Full boiler replacement required</option>
+            <option>Building fabric investigation required</option>
+            <option>Specialist damp survey required</option>
+            <option>Alternative tenant accommodation recommended</option>
+            <option>Multiple trades — full property survey needed</option>
+          </select>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">👤</div><div><h3>Inspector Details</h3></div></div>
+      <div class="cb"><div class="flds">
+        <div class="fr">
+          <div class="fld"><div class="lbl">Name <span class="req">*</span></div><input class="inp" id="i-name" placeholder="Full name"></div>
+          <div class="fld"><div class="lbl">Job Title / Role</div><input class="inp" id="i-role" placeholder="e.g. Heating Engineer"></div>
+        </div>
+        <div class="fld"><div class="lbl">Company / Organisation</div><input class="inp" id="i-co" placeholder="Company name"></div>
+        <div class="fld"><div class="lbl">Contact Number</div><input class="inp" id="i-tel" placeholder="Direct contact" type="tel"></div>
+        <div class="fld"><div class="lbl">Inspection Date & Time <span class="req">*</span></div><input class="inp" type="datetime-local" id="i-dt"></div>
+      </div></div>
+    </div>
+
+    <div class="btn-row" style="margin-bottom:11px">
+      <button class="btn btn-g" onclick="doPreview()">👁 Preview</button>
+      <button class="btn btn-p" onclick="doGen()">📄 Generate Report</button>
+    </div>
+
+    <div id="rpt-wrap" class="rpt-wrap">
+      <div class="rdoc">
+        <div class="rdh"><div class="rdl">BoilerFix <em>AI</em></div><div class="rdb">Awaab's Law Report</div></div>
+        <div class="rdt"><h2>Housing Hazard Inspection Report</h2><div class="rdr" id="rpt-ref">Ref: —</div></div>
+        <div class="rdbody" id="rpt-body"></div>
+        <div class="rft"><span>Generated by <strong>BoilerFix AI</strong></span><span id="rpt-ts"></span></div>
+      </div>
+      <button class="btn btn-d" style="margin-top:9px" onclick="dlReport()">⬇ Download / Print PDF</button>
+    </div>
+  </div>
+
+  <!-- ══ DEADLINES ══ -->
+  <div id="tab-deadlines" class="tab">
+    <div class="sh"><span class="sh-txt">Deadline Calculator</span><div class="sh-line"></div></div>
+    <div class="notice am"><span class="ni2">⚖</span>Day zero = date landlord became aware. Working days exclude weekends and English bank holidays.</div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">📅</div><div><h3>Enter Report Details</h3></div></div>
+      <div class="cb"><div class="flds">
+        <div class="fld"><div class="lbl">Date Hazard Reported — Day Zero <span class="req">*</span></div><input class="inp" type="date" id="dl-date" onchange="calcDL()"></div>
+        <div class="fld"><div class="lbl">Hazard Type</div>
+          <select class="sel" id="dl-type" onchange="calcDL()">
+            <option value="sig">Significant Hazard — damp, mould</option>
+            <option value="em">Emergency Hazard — boiler failure, gas leak, CO</option>
+          </select>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="dl-res" style="display:none">
+      <div class="dlc">
+        <div class="dlr"><div class="dlb r">⚡</div><div class="dli"><div class="dlt" id="dl-t1">—</div><div class="dls" id="dl-s1">—</div></div><div class="dltime" id="dl-d1">—</div></div>
+        <div class="dlr"><div class="dlb a">📝</div><div class="dli"><div class="dlt">Written Findings to Tenant</div><div class="dls">3 working days after investigation</div></div><div class="dltime" id="dl-d2">—</div></div>
+        <div class="dlr"><div class="dlb b">🔧</div><div class="dli"><div class="dlt">Make Property Safe</div><div class="dls">5 working days after investigation</div></div><div class="dltime" id="dl-d3">—</div></div>
+      </div>
+      <div class="cdb"><div class="cdt">⏱ Countdown</div><div class="cdrs" id="cd-rows"></div></div>
+    </div>
+
+    <div class="sh" style="margin-top:16px"><span class="sh-txt">Legal Timeframes</span><div class="sh-line"></div></div>
+    <div class="dlc">
+      <div class="dlr"><div class="dlb r">🔴</div><div class="dli"><div class="dlt">Emergency Hazard</div><div class="dls">Gas leaks · broken boilers · CO · major leak · dangerous electrical</div></div><div class="dltime" style="color:#f07070">24 hr</div></div>
+      <div class="dlr"><div class="dlb a">🟡</div><div class="dli"><div class="dlt">Investigate — Significant Hazard</div><div class="dls">Damp & mould presenting significant risk</div></div><div class="dltime" style="color:#e0b840">10 days</div></div>
+      <div class="dlr"><div class="dlb g">📄</div><div class="dli"><div class="dlt">Written Findings to Tenant</div><div class="dls">After any investigation</div></div><div class="dltime" style="color:#6ad890">3 days</div></div>
+      <div class="dlr"><div class="dlb b">🔧</div><div class="dli"><div class="dlt">Make Safe — Significant Hazard</div><div class="dls">After investigation concludes</div></div><div class="dltime" style="color:#80b8f0">5 days</div></div>
+    </div>
+  </div>
+
+  <!-- ══ LETTERS ══ -->
+  <div id="tab-letters" class="tab">
+    <div class="sh"><span class="sh-txt">Compliance Letters</span><div class="sh-line"></div></div>
+    <div class="notice bl"><span class="ni2">ℹ</span>Letters auto-populate from your inspection data. Edit before downloading or sending.</div>
+
+    <div class="card">
+      <div class="ch"><div class="chi">⚙️</div><div><h3>Auto-populate Letters</h3><div class="ch-sub">Fill Inspect tab first for best results</div></div></div>
+      <div class="cb"><button class="btn btn-p" onclick="populateLetters()">↻ Pull Data from Inspection</button></div>
+    </div>
+
+    <div class="ltabs">
+      <button class="ltb on" onclick="switchL(this,'l-tenant')">📬 Tenant Notice</button>
+      <button class="ltb" onclick="switchL(this,'l-landlord')">🏢 Landlord Notice</button>
+      <button class="ltb" onclick="switchL(this,'l-chaser')">⚠️ Remedial Chaser</button>
+    </div>
+
+    <div id="l-tenant" class="lp on">
+      <div class="ldoc">
+        <div class="lh2"><div class="ll2">BoilerFix <em>AI</em></div><div class="lbdg">Tenant Notice</div></div>
+        <div class="lm"><strong id="lt-ref">Ref: —</strong><span id="lt-date">Date: —</span> &nbsp;|&nbsp; <span id="lt-addr">Property: —</span></div>
+        <div class="lbwrap"><textarea class="le" id="lt-body" placeholder="Click 'Pull Data from Inspection' above to populate this letter automatically."></textarea></div>
+        <div class="lft"><span>Generated by <strong>BoilerFix AI</strong></span><span id="lt-ts"></span></div>
+      </div>
+      <div class="lact">
+        <button class="btn btn-d" onclick="dlLetter('tenant')">⬇ Download PDF</button>
+        <button class="btn btn-p" onclick="openEmail('tenant')">✉ Send by Email</button>
+      </div>
+    </div>
+
+    <div id="l-landlord" class="lp">
+      <div class="ldoc">
+        <div class="lh2"><div class="ll2">BoilerFix <em>AI</em></div><div class="lbdg">Landlord Notice</div></div>
+        <div class="lm"><strong id="ll-ref">Ref: —</strong><span id="ll-date">Date: —</span> &nbsp;|&nbsp; <span id="ll-addr">Property: —</span></div>
+        <div class="lbwrap"><textarea class="le" id="ll-body" placeholder="Click 'Pull Data from Inspection' above to populate this letter automatically."></textarea></div>
+        <div class="lft"><span>Generated by <strong>BoilerFix AI</strong></span><span id="ll-ts"></span></div>
+      </div>
+      <div class="lact">
+        <button class="btn btn-d" onclick="dlLetter('landlord')">⬇ Download PDF</button>
+        <button class="btn btn-p" onclick="openEmail('landlord')">✉ Send by Email</button>
+      </div>
+    </div>
+
+    <div id="l-chaser" class="lp">
+      <div class="ldoc">
+        <div class="lh2"><div class="ll2">BoilerFix <em>AI</em></div><div class="lbdg">Remedial Chaser</div></div>
+        <div class="lm"><strong id="lc-ref">Ref: —</strong><span id="lc-date">Date: —</span> &nbsp;|&nbsp; <span id="lc-addr">Property: —</span></div>
+        <div class="lbwrap"><textarea class="le" id="lc-body" placeholder="Click 'Pull Data from Inspection' above to populate this letter automatically."></textarea></div>
+        <div class="lft"><span>Generated by <strong>BoilerFix AI</strong></span><span id="lc-ts"></span></div>
+      </div>
+      <div class="lact">
+        <button class="btn btn-d" onclick="dlLetter('chaser')">⬇ Download PDF</button>
+        <button class="btn btn-p" onclick="openEmail('chaser')">✉ Send by Email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ REFERENCE ══ -->
+  <div id="tab-reference" class="tab">
+    <div class="sh"><span class="sh-txt">Legislation Phases</span><div class="sh-line"></div></div>
+    <div class="notice bl"><span class="ni2">⚖</span>Hazards in Social Housing (Prescribed Requirements) (England) Regulations 2025 — Social Housing (Regulation) Act 2023.</div>
+
+    <div class="pb"><div class="pbh"><div class="pbn live">1</div><div class="pbm"><div class="pbd">✅ Live — 27 October 2025</div><div class="pbtl">Damp, Mould & Emergency Hazards</div></div></div>
+      <div class="pbb">
+        <div class="pbi">Emergency hazards (broken boilers, gas leaks, CO) — investigate & make safe within 24 hours</div>
+        <div class="pbi">Significant damp & mould — investigate within 10 working days</div>
+        <div class="pbi">Written findings to tenant within 3 working days of investigation concluding</div>
+        <div class="pbi">Make safe within 5 working days of investigation concluding</div>
+        <div class="pbi">Applies to social housing tenancies in England</div>
+      </div>
+    </div>
+
+    <div class="pb"><div class="pbh"><div class="pbn next">2</div><div class="pbm"><div class="pbd">🟡 Phase 2 — 2026 (date TBC)</div><div class="pbtl">Expanded Hazards</div></div></div>
+      <div class="pbb">
+        <div class="pbi">Excess cold and excess heat</div>
+        <div class="pbi">Falls — bathrooms, stairs, between levels</div>
+        <div class="pbi">Structural collapse and explosions</div>
+        <div class="pbi">Fire and electrical hazards</div>
+        <div class="pbi">Domestic and personal hygiene, food safety</div>
+      </div>
+    </div>
+
+    <div class="pb"><div class="pbh"><div class="pbn fut">3</div><div class="pbm"><div class="pbd">🟠 Phase 3 — 2027</div><div class="pbtl">All HHSRS Hazards</div></div></div>
+      <div class="pbb">
+        <div class="pbi">All 29 HHSRS hazard categories presenting significant risk of harm</div>
+        <div class="pbi">Excluding overcrowding</div>
+        <div class="pbi">Private rented sector — Renters' Rights Bill (TBC)</div>
+      </div>
+    </div>
+
+    <div class="sh" style="margin-top:14px"><span class="sh-txt">Who Is Covered</span><div class="sh-line"></div></div>
+    <div class="card"><div class="cb t"><div class="scl">
+      <div class="sci in"><span class="sii">✅</span>Social housing tenancies — housing associations</div>
+      <div class="sci in"><span class="sii">✅</span>Local authority / council housing</div>
+      <div class="sci in"><span class="sii">✅</span>Registered providers of social housing</div>
+      <div class="sci tbc"><span class="sii">🔄</span>Private rented sector — Renters' Rights Bill (TBC)</div>
+      <div class="sci out"><span class="sii">✗</span>Shared ownership — excluded</div>
+      <div class="sci out"><span class="sii">✗</span>Long leaseholds — excluded</div>
+      <div class="sci out"><span class="sii">✗</span>Temporary / supported accommodation — excluded</div>
+      <div class="sci out"><span class="sii">✗</span>Scotland — separate legislation in development</div>
+    </div></div></div>
+
+    <div class="sh" style="margin-top:14px"><span class="sh-txt">Non-Compliance Consequences</span><div class="sh-line"></div></div>
+    <div class="notice re"><span class="ni2">⚖</span>Landlords face court action for breach of contract, unlimited fines, Housing Ombudsman findings, Regulator of Social Housing escalation and tenant compensation claims. Lifestyle is no longer a valid defence for damp and mould.</div>
+  </div>
+
+  </main>
+</div><!-- /app-body -->
+
+<!-- EMAIL MODAL -->
+<div class="modal" id="emodal">
+  <div class="modal-inner">
+    <div class="modal-title">✉ Send Letter by Email</div>
+    <div class="modal-flds">
+      <div class="fld"><div class="lbl">Recipient Email <span class="req">*</span></div><input class="inp" id="em-to" placeholder="recipient@example.com" type="email"></div>
+      <div class="fld"><div class="lbl">Subject</div><input class="inp" id="em-sub" value="Awaab's Law — Inspection Notice"></div>
+      <div class="fld"><div class="lbl">Covering Note (optional)</div><textarea class="ta" id="em-note" placeholder="Add a short note..." style="min-height:56px"></textarea></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" onclick="sendEmail()">Open in Mail App</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── INIT ── */
+const now0=new Date();
+const pad=n=>String(n).padStart(2,'0');
+const todayStr=`${now0.getFullYear()}-${pad(now0.getMonth()+1)}-${pad(now0.getDate())}`;
+document.getElementById('today-txt').textContent=fmtL(now0);
+document.getElementById('p-rep').value=todayStr;
+document.getElementById('dl-date').value=todayStr;
+document.getElementById('i-dt').value=todayStr+'T'+pad(now0.getHours())+':'+pad(now0.getMinutes());
+calcDL();
+
+/* ── TABS ── */
+function goTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+/* ── CLASSIFIER ── */
+let cH=null;
+function pickH(btn,t){
+  document.querySelectorAll('#tab-classify .cho').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); cH=t;
+  document.getElementById('step2').style.display='block';
+  document.getElementById('clf-res').classList.remove('show','em','sig','low');
+}
+function togV(cb){cb.closest('.vi').classList.toggle('on',cb.checked)}
+
+function runClf(){
+  if(!cH)return;
+  const vuln=document.querySelectorAll('#clf-v .vi.on').length>0;
+  const isEm=['gas','co','boiler'].includes(cH)||(cH==='damp'&&vuln);
+  const map={
+    gas:{c:'em',k:'Emergency Hazard — Phase 1',t:'🔴 GAS LEAK',b:"A gas leak is an emergency hazard. Imminent risk to life. Landlord must investigate and make property safe within 24 hours of becoming aware.",d:'⚡ Landlord must act within 24 hours. Call 0800 111 999 National Gas Emergency if gas escape confirmed.'},
+    co:{c:'em',k:'Emergency Hazard — Phase 1',t:'🔴 CO RISK',b:"Suspected CO presents an imminent and significant risk of harm. Landlord must make the property safe within 24 hours.",d:'⚡ Evacuate property. Ventilate. Call emergency services if required. Landlord must act within 24 hours.'},
+    boiler:{c:'em',k:'Emergency Hazard — Phase 1',t:'🔴 HEATING FAILURE',b:"A broken boiler leaving tenants without heating is an emergency hazard, particularly where vulnerable occupants are present.",d:'⚡ Landlord must investigate and make safe within 24 hours of the report date.'},
+    damp_em:{c:'em',k:'Emergency — Escalated by Vulnerability',t:'🔴 DAMP & MOULD — EMERGENCY',b:"Damp and mould escalated to emergency due to presence of vulnerable occupants. A reasonable landlord would act within 24 hours.",d:'⚡ Landlord must act within 24 hours. Vulnerability factors must be documented.'},
+    damp_sig:{c:'sig',k:'Significant Hazard — Phase 1',t:'🟡 DAMP & MOULD',b:"Significant damp and mould presenting a risk of harm. No vulnerable occupants identified. Standard timescales apply.",d:'📅 Investigate within 10 working days → Written findings within 3 working days → Make safe within 5 working days of investigation.'},
+    hw:{c:'sig',k:'Assess Carefully',t:'🟡 NO HOT WATER',b:"Loss of hot water may be a significant hazard depending on vulnerability. Document fully and assess against tenant circumstances.",d:'📋 Treat as significant if vulnerable occupants present. Escalates under Phase 2 in 2026.'},
+    other:{c:'low',k:'Assess Against HHSRS',t:'🟢 ASSESS FURTHER',b:"Assess this hazard against HHSRS criteria. If it presents a significant risk of harm it may still be in scope under Phase 1.",d:'📋 Document findings, advise tenant, reassess if circumstances change.'}
+  };
+  let key=cH==='damp'?(isEm?'damp_em':'damp_sig'):(cH==='boiler'?'boiler':cH);
+  if(!map[key])key='other';
+  const m=map[key];
+  const r=document.getElementById('clf-res');
+  r.className='res '+m.c+' show';
+  document.getElementById('r-k').textContent=m.k;
+  document.getElementById('r-t').textContent=m.t;
+  document.getElementById('r-b').textContent=m.b;
+  document.getElementById('r-d').textContent=m.d;
+}
+
+/* ── DATE HELPERS ── */
+function addWD(date,n){let d=new Date(date),a=0;while(a<n){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)a++;}return d;}
+function fmtL(d){return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
+function fmtS(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}
+function fmtDO(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
+
+/* ── DEADLINES ── */
+function calcDL(){
+  const v=document.getElementById('dl-date').value,t=document.getElementById('dl-type').value;
+  if(!v)return;
+  const d0=new Date(v);
+  document.getElementById('dl-res').style.display='block';
+  let d1,t1,s1;
+  if(t==='em'){d1=new Date(d0);d1.setDate(d1.getDate()+1);t1='Investigate & Make Safe';s1='Emergency — within 24 hours of becoming aware';}
+  else{d1=addWD(d0,10);t1='Complete Investigation';s1='Significant hazard — within 10 working days of report';}
+  const d2=addWD(d1,3),d3=addWD(d1,5);
+  document.getElementById('dl-t1').textContent=t1;
+  document.getElementById('dl-s1').textContent=s1;
+  document.getElementById('dl-d1').textContent=fmtS(d1);
+  document.getElementById('dl-d2').textContent=fmtS(d2);
+  document.getElementById('dl-d3').textContent=fmtS(d3);
+  const now=new Date();now.setHours(0,0,0,0);
+  const items=[{l:t==='em'?'Make safe':'Investigation due',d:d1},{l:'Written findings due',d:d2},{l:'Make safe deadline',d:d3}];
+  document.getElementById('cd-rows').innerHTML=items.map(it=>{
+    const diff=Math.ceil((it.d-now)/86400000);
+    let cls='ok',txt='';
+    if(diff<0){cls='od';txt=Math.abs(diff)+' days overdue';}
+    else if(diff===0){cls='warn';txt='Today';}
+    else if(diff===1){cls='warn';txt='Tomorrow';}
+    else txt=diff+' days remaining';
+    return`<div class="cdr"><span class="cl">${it.l}</span><span class="cv ${cls}">${fmtS(it.d)} — ${txt}</span></div>`;
+  }).join('');
+}
+function syncRep(){const v=document.getElementById('p-rep').value;document.getElementById('dl-date').value=v;calcDL();}
+
+/* ── PHOTOS ── */
+function addPx(inp){
+  const g=document.getElementById('pgrid');
+  Array.from(inp.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${e.target.result}"><button class="pd2" onclick="this.parentElement.remove()">×</button>`;g.appendChild(el);};
+    r.readAsDataURL(f);
+  });
+}
+
+/* ── REPORT ── */
+function buildRpt(){
+  const n=new Date(),ref='AWBL-'+Date.now().toString().slice(-7);
+  document.getElementById('rpt-ref').textContent='Ref: '+ref;
+  document.getElementById('rpt-ts').textContent=n.toLocaleString('en-GB');
+  const hc=document.getElementById('h-cls').value;
+  const vulns=[];document.querySelectorAll('#form-v .vi.on').forEach(el=>vulns.push(el.textContent.trim()));
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'—':'—';};
+  const secs=[
+    {h:'Property',rows:[['Address',g('p-addr')],['Type',g('p-type')],['Build Year',g('p-yr')],['Social Landlord',g('p-ll')],['Reported (Day 0)',g('p-rep')?fmtL(new Date(g('p-rep'))):'—']]},
+    {h:'Hazard',rows:[['Classification',hc?hc.toUpperCase():'—',hc==='emergency'?'em':hc==='significant'?'sig':''],['Description',g('h-desc')],['Root Cause',g('h-cause')],['Boiler Status',g('h-bst')]]},
+    {h:'Readings',rows:[['Living Room',g('rd-lr')+' °C'],['Bedroom',g('rd-bd')+' °C'],['Kitchen',g('rd-kt')+' °C'],['Humidity',g('rd-rh')+' %RH'],['Damp Meter',g('rd-dm')+' %WME'],['Boiler Pressure',g('rd-bp')+' bar']]},
+    {h:'Vulnerable Occupants',rows:[['Factors',vulns.length?vulns.join(' · '):'None identified']]},
+    {h:'Actions',rows:[['Immediate',g('a-imm')],['Further Work',g('a-fur')],['Recommendation',g('a-rec')]]},
+    {h:'Inspector',rows:[['Name',g('i-name')],['Role',g('i-role')],['Company',g('i-co')],['Contact',g('i-tel')],['Inspection Date',g('i-dt')?new Date(g('i-dt')).toLocaleString('en-GB'):'—']]}
+  ];
+  document.getElementById('rpt-body').innerHTML=secs.map(s=>`<div class="rsec">${s.h}</div>`+s.rows.map(r=>`<div class="rrow"><span class="rk">${r[0]}</span><span class="rv ${r[2]||''}">${r[1]}</span></div>`).join('')).join('');
+  return ref;
+}
+function doPreview(){buildRpt();const w=document.getElementById('rpt-wrap');w.classList.add('show');w.scrollIntoView({behavior:'smooth',block:'start'});}
+function doGen(){buildRpt();document.getElementById('rpt-wrap').classList.add('show');document.getElementById('rpt-wrap').scrollIntoView({behavior:'smooth',block:'start'});showToast('✓ Report generated');}
+
+function dlReport(){
+  const doc=document.querySelector('.rdoc');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Awaab's Law Inspection Report</title>
+  <style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;font-size:12px;color:#1a2a40}
+  .rdh{background:#0b1829;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rdl{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff}.rdl em{color:#f07a22;font-style:normal}
+  .rdb{background:#f07a22;color:#fff;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:20px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rdt{background:#f5f7fb;border-bottom:2px solid #e0e7f0;padding:12px 18px}.rdt h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0b1829;margin-bottom:2px}.rdr{font-size:10px;color:#6a7d95}
+  .rdbody{padding:14px 18px}
+  .rsec{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#f07a22;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid #e8edf5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rsec:first-child{margin-top:0}
+  .rrow{display:flex;gap:8px;padding:4px 0;font-size:11.5px;border-bottom:1px solid #f0f4f9}.rrow:last-child{border-bottom:none}
+  .rk{color:#6a7d95;min-width:130px;flex-shrink:0;font-weight:500}.rv{color:#1a2a40;font-weight:500}
+  .rv.em{color:#c0392b;font-weight:700}.rv.sig{color:#b7770d;font-weight:700}
+  .rft{background:#f5f7fb;border-top:1px solid #e0e7f0;padding:9px 18px;display:flex;justify-content:space-between;font-size:10px;color:#8a9bb0}
+  .rft strong{color:#3a5070}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>`+doc.outerHTML+`</body></html>`);
+  w.document.close();setTimeout(()=>{w.focus();w.print();},800);
+}
+
+/* ── LETTERS ── */
+function switchL(btn,id){
+  document.querySelectorAll('.ltb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.lp').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');document.getElementById(id).classList.add('on');
+}
+
+function populateLetters(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const addr=g('p-addr')||'[Property Address]';
+  const landlord=g('p-ll')||'[Landlord]';
+  const repDate=g('p-rep')?fmtDO(new Date(g('p-rep'))):'[Report Date]';
+  const hcls=g('h-cls')||'significant';
+  const hdesc=g('h-desc')||'[Hazard description not provided]';
+  const imm=g('a-imm')||'No immediate actions recorded.';
+  const fur=g('a-fur')||'Further investigation required.';
+  const rec=g('a-rec')||'[Recommendation not selected]';
+  const iname=g('i-name')||'[Inspector Name]';
+  const ico=g('i-co')||'[Company]';
+  const itel=g('i-tel')||'[Contact]';
+  const inspDt=g('i-dt')?new Date(g('i-dt')).toLocaleString('en-GB'):'[Inspection Date]';
+  const vulns=[];document.querySelectorAll('#form-v .vi.on').forEach(el=>vulns.push(el.textContent.trim()));
+  const vulnTxt=vulns.length?vulns.join(', '):'None identified';
+  const isEm=hcls==='emergency';
+  const clsLabel=isEm?'EMERGENCY HAZARD':hcls==='significant'?'SIGNIFICANT HAZARD':'Non-significant hazard';
+  const now=new Date();
+  const ref='AWBL-'+Date.now().toString().slice(-7);
+  ['lt','ll','lc'].forEach(p=>{
+    const r=document.getElementById(p+'-ref');const d=document.getElementById(p+'-date');const a=document.getElementById(p+'-addr');const t=document.getElementById(p+'-ts');
+    if(r)r.textContent='Ref: '+ref;if(d)d.textContent='Date: '+fmtDO(now);if(a)a.textContent='Property: '+addr;if(t)t.textContent=fmtDO(now);
+  });
+
+  document.getElementById('lt-body').value=
+`Dear Resident,
+
+Re: Housing Hazard Inspection — ${addr}
+
+We are writing to inform you of the outcome of the housing hazard inspection carried out at the above property on ${inspDt}, in accordance with the Hazards in Social Housing (Prescribed Requirements) (England) Regulations 2025 (Awaab's Law).
+
+INSPECTION FINDINGS
+Classification: ${clsLabel}
+
+${hdesc}
+
+Vulnerable occupants noted: ${vulnTxt}
+
+IMMEDIATE ACTIONS TAKEN
+${imm}
+
+WHAT HAPPENS NEXT
+${fur}
+
+Our recommendation to your landlord: ${rec}
+
+YOUR LANDLORD'S LEGAL OBLIGATIONS
+Under Awaab's Law, your landlord must:
+
+${isEm
+  ?'• Investigate and make your home safe within 24 hours of being notified of this hazard.'
+  :'• Complete a full investigation within 10 working days of notification.\n• Make your home safe within 5 working days of the investigation concluding.'}
+• Provide you with this written summary of findings within 3 working days of the inspection.
+• Keep you updated throughout and advise on how to stay safe during any works.
+• Offer you suitable alternative accommodation if your home cannot be made safe within the required timeframe.
+
+If your landlord does not act within these timeframes, you have the right to take legal action through the courts for breach of contract, or raise a complaint through the Housing Ombudsman Service.
+
+Yours sincerely,
+
+${iname}
+${ico}
+${itel}
+
+Ref: ${ref} | Inspected: ${inspDt}
+Generated by BoilerFix AI — Awaab's Law Compliance Module`;
+
+  document.getElementById('ll-body').value=
+`Dear Sir / Madam,
+
+Re: Formal Hazard Notification — ${addr}
+Hazards in Social Housing (Prescribed Requirements) (England) Regulations 2025
+
+We write to formally notify you of the findings of a housing hazard inspection conducted at the above property on ${inspDt}, pursuant to your obligations under Awaab's Law.
+
+HAZARD CLASSIFICATION: ${clsLabel}
+
+INSPECTION FINDINGS
+${hdesc}
+
+Full readings and details are in the accompanying Inspection Report (Ref: ${ref}).
+Vulnerable occupants present: ${vulnTxt}
+
+IMMEDIATE ACTIONS TAKEN ON SITE
+${imm}
+
+FURTHER WORKS REQUIRED
+${fur}
+
+INSPECTOR RECOMMENDATION
+${rec}
+
+YOUR LEGAL OBLIGATIONS
+${isEm
+  ?'1. Investigate and make this property safe within 24 HOURS of the date of this notification.\n2. If you cannot make the property safe within 24 hours, you must offer the tenant suitable alternative accommodation at your expense.'
+  :`1. Complete a thorough investigation within 10 WORKING DAYS of this notification.\n2. Make the property safe within 5 WORKING DAYS of the investigation concluding.\n3. Offer alternative accommodation if the property cannot be made safe within the required timeframe.`}
+${isEm?'3.':'4.'} Provide the tenant with written findings within 3 WORKING DAYS of this inspection.
+${isEm?'4.':'5.'} Maintain clear records of all steps taken, including all correspondence with the tenant and contractors.
+
+CONSEQUENCES OF NON-COMPLIANCE
+Failure to comply entitles the tenant to take legal action for breach of contract. You may also face Housing Ombudsman findings, Regulator of Social Housing action, unlimited civil penalties and tenant compensation claims.
+
+Please acknowledge receipt and confirm your intended actions and timescales in writing within 2 working days.
+
+Yours faithfully,
+
+${iname}
+${ico}
+${itel}
+
+Ref: ${ref} | Inspected: ${inspDt}
+Generated by BoilerFix AI — Awaab's Law Compliance Module`;
+
+  document.getElementById('lc-body').value=
+`Dear Sir / Madam,
+
+Re: URGENT — Remedial Action Overdue — ${addr}
+Awaab's Law — Hazards in Social Housing (Prescribed Requirements) (England) Regulations 2025
+
+We refer to our formal hazard notification dated ${repDate} (Ref: ${ref}).
+
+HAZARD CLASSIFICATION: ${clsLabel}
+
+To date, we have not received confirmation that the required remedial works have been completed or commenced within the legal timeframes set out under Awaab's Law.
+
+OUTSTANDING OBLIGATIONS
+${isEm
+  ?'An emergency hazard was identified requiring investigation and remediation within 24 hours of notification. This deadline has now passed without confirmed action.'
+  :'A significant hazard was identified. The legal deadline for remediation has now passed without confirmed completion of the required works.'}
+
+Required action: ${rec}
+Outstanding works: ${fur}
+
+IMMEDIATE ACTION REQUIRED
+1. Confirm in writing, within 24 hours of this letter, the current status of all remedial works.
+2. Provide a firm completion date for all outstanding works.
+3. Confirm whether alternative accommodation has been offered to the tenant.
+
+Please be advised that continued failure to act entitles the tenant to pursue legal action through the courts for breach of contract. This letter may be used as evidence in any such proceedings.
+
+Yours faithfully,
+
+${iname}
+${ico}
+${itel}
+
+Original Ref: ${ref} | Original Inspection: ${inspDt}
+Chaser issued: ${fmtDO(now)}
+Generated by BoilerFix AI — Awaab's Law Compliance Module`;
+
+  showToast('✓ Letters populated');
+}
+
+function dlLetter(type){
+  const ids={tenant:'lt',landlord:'ll',chaser:'lc'};
+  const p=ids[type];
+  const body=document.getElementById(p+'-body').value;
+  const ref=document.getElementById(p+'-ref').textContent;
+  const addr=document.getElementById(p+'-addr').textContent;
+  const titles={tenant:'Tenant Notification Letter',landlord:'Landlord Notification Letter',chaser:'Remedial Action Chaser'};
+  const badges={tenant:'Tenant Notice',landlord:'Landlord Notice',chaser:'Remedial Chaser'};
+  const esc=body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titles[type]}</title>
+  <style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;font-size:12px;color:#1a2a40}
+  .lh2{background:#0b1829;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ll2{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff}.ll2 em{color:#f07a22;font-style:normal}
+  .lbdg{background:#f07a22;color:#fff;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:20px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .lm{padding:9px 18px;background:#f5f7fb;border-bottom:1px solid #e0e7f0;font-size:10.5px;color:#6a7d95}
+  .lm strong{color:#1a2a40;display:block;font-size:12px;margin-bottom:1px}
+  .lbody{padding:18px;white-space:pre-wrap;line-height:1.75;font-size:12.5px}
+  .lft{background:#f5f7fb;border-top:1px solid #e0e7f0;padding:9px 18px;display:flex;justify-content:space-between;font-size:10px;color:#8a9bb0}
+  .lft strong{color:#3a5070}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>
+  <div class="lh2"><div class="ll2">BoilerFix <em>AI</em></div><div class="lbdg">${badges[type]}</div></div>
+  <div class="lm"><strong>${titles[type]}</strong>${ref} | ${addr}</div>
+  <div class="lbody">${esc}</div>
+  <div class="lft"><span>Generated by <strong>BoilerFix AI</strong> — Awaab's Law Compliance</span><span>${new Date().toLocaleDateString('en-GB')}</span></div>
+  </body></html>`);
+  w.document.close();setTimeout(()=>{w.focus();w.print();},800);
+}
+
+let aet=null;
+function openEmail(type){
+  aet=type;
+  const subjects={tenant:"Awaab's Law — Inspection Notice",landlord:"FORMAL NOTICE — Awaab's Law Hazard Notification",chaser:"URGENT — Remedial Action Overdue — Awaab's Law"};
+  document.getElementById('em-sub').value=subjects[type];
+  document.getElementById('em-to').value='';
+  document.getElementById('em-note').value='';
+  document.getElementById('emodal').classList.add('show');
+}
+function closeModal(){document.getElementById('emodal').classList.remove('show')}
+function sendEmail(){
+  const to=document.getElementById('em-to').value.trim();
+  if(!to){alert('Please enter a recipient email address.');return;}
+  const ids={tenant:'lt',landlord:'ll',chaser:'lc'};
+  const body=document.getElementById(ids[aet]+'-body').value;
+  const note=document.getElementById('em-note').value;
+  const full=note?note+'\n\n---\n\n'+body:body;
+  window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(document.getElementById('em-sub').value)+'&body='+encodeURIComponent(full);
+  closeModal();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+</script>
+</body>
+</html>
